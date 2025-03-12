@@ -124,3 +124,7 @@ The platform implements comprehensive security rules to ensure:
 ## License
 
 [MIT License](LICENSE)
+
+## Deployment Trigger
+
+This line was added to trigger a new Vercel deployment on commit 4cc44c1.
