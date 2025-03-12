@@ -2,9 +2,26 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function EnvDebugAdvanced() {
-  const [envInfo, setEnvInfo] = useState<any>({});
+  interface EnvInfo {
+    nodeEnv?: string;
+    nextPublicApiKey?: string;
+    nextPublicApiKeyExists?: boolean;
+    nextPublicApiKeyLength?: number;
+    nextPublicAuthDomain?: string;
+    nextPublicProjectId?: string;
+    nextPublicStorageBucket?: string;
+    nextPublicMessagingSenderId?: string;
+    nextPublicAppId?: string;
+    nextAuthUrl?: string;
+    nextAuthSecret?: string;
+    isBrowser?: boolean;
+    isDevelopment?: boolean;
+    isProduction?: boolean;
+  }
+  
+  const [envInfo, setEnvInfo] = useState<EnvInfo>({});
   const [envVars, setEnvVars] = useState<Record<string, string>>({});
-  const [nextConfig, setNextConfig] = useState<any>({});
+  const [nextConfig, setNextConfig] = useState<Record<string, string>>({});
   
   useEffect(() => {
     // Get environment information

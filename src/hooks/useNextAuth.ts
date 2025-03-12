@@ -11,8 +11,8 @@ export interface UserProfile {
   photoURL?: string;
   role: 'admin' | 'strategist' | 'client' | 'creative';
   organizationId?: string;
-  createdAt: any;
-  lastLoginAt: any;
+  createdAt: Date;
+  lastLoginAt: Date;
 }
 
 export function useNextAuth() {

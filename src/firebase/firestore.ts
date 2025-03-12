@@ -11,17 +11,11 @@ import {
   query,
   where,
   orderBy,
-  limit,
-  onSnapshot,
   serverTimestamp,
-  Timestamp,
-  DocumentReference,
-  CollectionReference,
-  DocumentData,
-  QuerySnapshot
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './config';
-import { UserProfile, UserRole } from './auth';
+import type { UserRole } from './auth';
 
 // Check if we're running on the server
 const isServer = typeof window === 'undefined';
@@ -166,16 +160,16 @@ export interface Insight {
 }
 
 // Helper function to convert Firestore timestamps to JS dates
-const convertTimestamps = <T extends Record<string, any>>(data: T): T => {
+const convertTimestamps = <T extends Record<string, unknown>>(data: T): T => {
   const result = { ...data };
   Object.keys(result).forEach(key => {
     // Check if the property is a Timestamp
     if (result[key] instanceof Timestamp) {
-      result[key] = result[key].toDate();
+      result[key] = (result[key] as Timestamp).toDate() as unknown;
     }
     // Check if the property is an object and not null
     else if (typeof result[key] === 'object' && result[key] !== null) {
-      result[key] = convertTimestamps(result[key]);
+      result[key] = convertTimestamps(result[key] as Record<string, unknown>) as unknown;
     }
   });
   return result;
