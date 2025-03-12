@@ -2,7 +2,6 @@
 import OpenAI from 'openai';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { functions, db } from '@/firebase/config';
-import { httpsCallable as firebaseHttpsCallable } from 'firebase/functions';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -61,9 +60,12 @@ export const generateEmbeddings = async (text: string): Promise<number[]> => {
 
 // Create embeddings for document chunks using Cloud Function
 export const createDocumentEmbeddings = async (documentId: string): Promise<void> => {
-  // Using Firebase function to process document and create embeddings
-  const processDocument = firebaseHttpsCallable(functions, 'processDocument');
-  await processDocument({ documentId });
+  // Mock implementation for now
+  console.log(`Creating embeddings for document: ${documentId}`);
+  
+  // This would normally call a Firebase Function
+  // For now, we'll just return a resolved promise
+  return Promise.resolve();
 };
 
 // Query documents using RAG pattern
@@ -134,11 +136,17 @@ export const generateInsights = async (
   researchId: string,
   maxInsights: number = 5
 ): Promise<string[]> => {
-  // This would call a Firebase Function in production
-  const generateResearchInsights = firebaseHttpsCallable(functions, 'generateResearchInsights');
-  const result = await generateResearchInsights({ researchId, maxInsights });
+  // Mock implementation for now
+  console.log(`Generating insights for research: ${researchId}, max: ${maxInsights}`);
   
-  return (result.data as any).insights as string[];
+  // Return mock data
+  return [
+    "Insight 1: Consumers in the target demographic prefer eco-friendly packaging",
+    "Insight 2: Social media engagement increases by 45% when using interactive content",
+    "Insight 3: Brand recall is strongest when using consistent visual elements across channels",
+    "Insight 4: The target audience spends 3.5 hours daily on mobile devices",
+    "Insight 5: Competitor analysis shows a gap in the market for premium subscription services"
+  ].slice(0, maxInsights);
 };
 
 // Summarize a document
@@ -146,16 +154,25 @@ export const summarizeDocument = async (
   documentId: string, 
   length: 'short' | 'medium' | 'long' = 'medium'
 ): Promise<string> => {
-  // This would call a Firebase Function in production
-  const summarizeDocumentContent = firebaseHttpsCallable(functions, 'summarizeDocumentContent');
-  const result = await summarizeDocumentContent({ documentId, length });
+  // Mock implementation for now
+  console.log(`Summarizing document: ${documentId}, length: ${length}`);
   
-  return (result.data as any).summary as string;
+  // Return mock summary based on length
+  if (length === 'short') {
+    return "This document outlines the marketing strategy for Q3, focusing on digital channels and influencer partnerships to reach the target demographic.";
+  } else if (length === 'medium') {
+    return "This document outlines the marketing strategy for Q3 2023, with a primary focus on digital channels and influencer partnerships. The strategy aims to increase brand awareness by 25% and drive a 15% increase in sales among the 18-34 demographic. Key initiatives include a redesigned social media presence, partnerships with 5 tier-1 influencers, and an expanded content marketing program. Budget allocation prioritizes video content (40%), paid social (30%), influencer marketing (20%), and email campaigns (10%).";
+  } else {
+    return "This document provides a comprehensive outline of the marketing strategy for Q3 2023, with a primary focus on digital channels and influencer partnerships to reach the target demographic. The strategy aims to increase brand awareness by 25% and drive a 15% increase in sales among the 18-34 demographic.\n\nKey initiatives include:\n1. A redesigned social media presence across Instagram, TikTok, and YouTube\n2. Partnerships with 5 tier-1 influencers in the fashion and lifestyle space\n3. An expanded content marketing program focused on sustainability and ethical manufacturing\n4. Targeted email campaigns to re-engage dormant customers\n5. Limited-time promotions tied to seasonal events\n\nBudget allocation prioritizes video content (40%), paid social (30%), influencer marketing (20%), and email campaigns (10%). Success metrics include engagement rates, conversion tracking, influencer ROI, and overall sales lift.\n\nThe strategy also outlines contingency plans for underperforming channels and a timeline for implementation, with weekly check-ins and a mid-quarter review to allow for adjustments based on performance data.";
+  }
 };
 
 // Execute research request
 export const executeResearch = async (researchId: string): Promise<void> => {
-  // This function would call a Firebase Function to start the research process
-  const startResearch = firebaseHttpsCallable(functions, 'startResearch');
-  await startResearch({ researchId });
+  // Mock implementation for now
+  console.log(`Executing research: ${researchId}`);
+  
+  // This would normally call a Firebase Function
+  // For now, we'll just return a resolved promise
+  return Promise.resolve();
 };
