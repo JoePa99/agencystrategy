@@ -18,14 +18,14 @@ export default function NewProject() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   
-  // Firebase configuration
+  // Firebase configuration from environment variables
   const firebaseConfig = {
-    apiKey: "AIzaSyA0trAXY9TnPYkkDtZ2tK0DAYYWeZf2kPI",
-    authDomain: "agencystrategy-95d3d.firebaseapp.com",
-    projectId: "agencystrategy-95d3d",
-    storageBucket: "agencystrategy-95d3d.appspot.com",
-    messagingSenderId: "1090868022098",
-    appId: "1:1090868022098:web:2dc833c626358be49e088b"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
