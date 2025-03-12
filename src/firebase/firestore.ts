@@ -195,11 +195,15 @@ export const getOrganization = async (orgId: string): Promise<Organization | nul
 };
 
 export const createOrganization = async (data: Omit<Organization, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
-  const docRef = await addDoc(collection(db, 'organizations'), {
+  // Ensure logoUrl is null instead of undefined to avoid Firestore errors
+  const orgData = {
     ...data,
+    logoUrl: data.logoUrl || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
-  });
+  };
+  
+  const docRef = await addDoc(collection(db, 'organizations'), orgData);
   
   return docRef.id;
 };
@@ -300,11 +304,15 @@ export const getUserProjects = async (userId: string): Promise<Project[]> => {
 };
 
 export const createProject = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
-  const docRef = await addDoc(collection(db, 'projects'), {
+  // Clean project data to ensure all optional fields that might be undefined are set to null
+  const projectData = {
     ...data,
+    logoUrl: data.logoUrl || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
-  });
+  };
+  
+  const docRef = await addDoc(collection(db, 'projects'), projectData);
   
   return docRef.id;
 };
