@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 interface FormValues {
   name: string;
@@ -58,10 +58,10 @@ export default function ProjectSimple() {
       // Get user profile immediately
       const db = getFirestore(app);
       const userDocRef = doc(db, 'users', user.uid);
-      const userData = await userDocRef.get();
+      const userSnapshot = await getDoc(userDocRef);
       
-      if (userData.exists()) {
-        addLog(`User profile data: ${JSON.stringify(userData.data())}`);
+      if (userSnapshot.exists()) {
+        addLog(`User profile data: ${JSON.stringify(userSnapshot.data())}`);
       } else {
         addLog('No user profile found, creating one with organization');
         
@@ -124,13 +124,13 @@ export default function ProjectSimple() {
       
       // Get user profile
       const userDocRef = doc(db, 'users', userId);
-      const userDoc = await userDocRef.get();
+      const userSnapshot = await getDoc(userDocRef);
       
-      if (!userDoc.exists()) {
+      if (!userSnapshot.exists()) {
         throw new Error('User profile not found');
       }
       
-      const userData = userDoc.data();
+      const userData = userSnapshot.data();
       const organizationId = userData.organizationId;
       
       if (!organizationId) {
