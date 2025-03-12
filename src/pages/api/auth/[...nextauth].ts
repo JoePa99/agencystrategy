@@ -129,6 +129,7 @@ export default NextAuth({
       // Initial sign in
       if (user) {
         token.id = user.id;
+        token.email = user.email;
         
         // Ensure user exists in Firestore
         await ensureUserInFirestore(user.id, user);
@@ -139,6 +140,10 @@ export default NextAuth({
       // Send properties to the client
       if (session.user) {
         session.user.id = token.id as string;
+        // Make sure email is always set
+        if (!session.user.email && token.email) {
+          session.user.email = token.email as string;
+        }
       }
       return session;
     },
@@ -148,5 +153,6 @@ export default NextAuth({
     signOut: '/auth/signout',
     error: '/auth/error',
   },
+  secret: process.env.NEXTAUTH_SECRET || 'a-random-long-secret-key-for-next-auth-encryption',
   debug: true, // Set to false in production
 });
