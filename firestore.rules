@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // For development - allow all access to authenticated users
+    // Note: Remove these rules for production!
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Keep these rules commented out for now; they'll be used in production
+    /*
+    // User profiles - access only to authenticated users
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || 
+        exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)));
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Organizations - accessible to members
+    match /organizations/{orgId} {
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+      allow write: if request.auth != null && 
+        exists(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid)).data.role == 'admin';
+      
+      // Organization members subcollection
+      match /members/{memberId} {
+        allow read: if request.auth != null && 
+          exists(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+        allow write: if request.auth != null && 
+          exists(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid)).data.role == 'admin';
+      }
+    }
+    
+    // Projects - accessible to team members and organization admins
+    match /projects/{projectId} {
+      allow read: if request.auth != null && 
+        (resource.data.members[request.auth.uid] != null ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/organizations/$(request.data.organizationId)/members/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/organizations/$(request.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/$(database)/documents/organizations/$(request.data.organizationId)/members/$(request.auth.uid)).data.role == 'strategist');
+      allow update: if request.auth != null && 
+        (resource.data.members[request.auth.uid] == 'owner' || resource.data.members[request.auth.uid] == 'editor' ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+      allow delete: if request.auth != null && 
+        (resource.data.members[request.auth.uid] == 'owner' ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+    }
+    
+    // Documents - accessible based on project membership
+    match /documents/{documentId} {
+      allow read: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)/members/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+      allow create: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(request.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(request.data.projectId)).data.members[request.auth.uid] != 'viewer');
+      allow update, delete: if request.auth != null && 
+        (resource.data.ownerId == request.auth.uid || 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] == 'editor' ||
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] == 'owner') ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+    }
+    
+    // Research requests and findings
+    match /research/{researchId} {
+      allow read: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)/members/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+      allow create: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(request.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(request.data.projectId)).data.members[request.auth.uid] != 'viewer');
+      allow update: if request.auth != null && 
+        (resource.data.createdBy == request.auth.uid || 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] != 'viewer') ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'strategist'));
+      allow delete: if request.auth != null && 
+        (resource.data.createdBy == request.auth.uid || 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] == 'owner') ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+    }
+    
+    // Insights
+    match /insights/{insightId} {
+      allow read: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)/members/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role != null));
+      allow create: if request.auth != null && 
+        (exists(/databases/$(database)/documents/projects/$(request.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(request.data.projectId)).data.members[request.auth.uid] != 'viewer');
+      allow update: if request.auth != null && 
+        (resource.data.createdBy == request.auth.uid || 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] != 'viewer') ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'strategist')));
+      allow delete: if request.auth != null && 
+        (resource.data.createdBy == request.auth.uid || 
+        (exists(/databases/$(database)/documents/projects/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.members[request.auth.uid] == 'owner') ||
+        (exists(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/organizations/$(resource.data.organizationId)/members/$(request.auth.uid)).data.role == 'admin'));
+    }
+    */
+  }
+}

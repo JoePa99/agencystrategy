@@ -1,0 +1,65 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // For development - allow all access to authenticated users
+    // Note: Remove these rules for production!
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    /* Production rules (commented out for now)
+    // Default deny all rule
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Organization level files
+    match /organizations/{orgId}/{allOrgFiles=**} {
+      allow read: if request.auth != null && 
+        exists(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+      allow write: if request.auth != null && 
+        exists(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid)) &&
+        (get(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid)).data.role == 'strategist');
+    }
+    
+    // Project documents
+    match /projects/{projectId}/{allProjectFiles=**} {
+      allow read: if request.auth != null && 
+        exists(/databases/(default)/documents/projects/$(projectId)) &&
+        get(/databases/(default)/documents/projects/$(projectId)).data.members[request.auth.uid] != null;
+      allow write: if request.auth != null && 
+        exists(/databases/(default)/documents/projects/$(projectId)) &&
+        get(/databases/(default)/documents/projects/$(projectId)).data.members[request.auth.uid] != 'viewer';
+      
+      // Specific document files
+      match /documents/{documentId}/{allDocFiles=**} {
+        allow read: if request.auth != null && 
+          exists(/databases/(default)/documents/documents/$(documentId)) &&
+          exists(/databases/(default)/documents/projects/$(projectId)) &&
+          get(/databases/(default)/documents/projects/$(projectId)).data.members[request.auth.uid] != null;
+        allow write: if request.auth != null && 
+          exists(/databases/(default)/documents/documents/$(documentId)) &&
+          (get(/databases/(default)/documents/documents/$(documentId)).data.ownerId == request.auth.uid ||
+          exists(/databases/(default)/documents/projects/$(projectId)) &&
+          get(/databases/(default)/documents/projects/$(projectId)).data.members[request.auth.uid] != 'viewer');
+      }
+    }
+    
+    // User profile pictures
+    match /users/{userId}/profile.{extension} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Temporary uploads - limited size and time-based TTL
+    match /temp/{userId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && 
+                  request.auth.uid == userId && 
+                  request.resource.size < 10 * 1024 * 1024 && // 10MB limit
+                  request.resource.contentType.matches('application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.openxmlformats-officedocument.presentationml.presentation|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|image/.*');
+    }
+    */
+  }
+}
