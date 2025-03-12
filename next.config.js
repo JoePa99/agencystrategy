@@ -1,44 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  env: {
+    // Make environment variables explicitly available to the browser by including them here
+    NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  },
+  // Ensure we handle images from Firebase storage
   images: {
     domains: ['firebasestorage.googleapis.com'],
-    unoptimized: true, // Needed for static export
   },
-  eslint: {
-    dirs: ['pages', 'components', 'context', 'hooks', 'services', 'utils'],
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    // Disable TypeScript errors during build (both for local and Vercel)
-    ignoreBuildErrors: true,
-  },
-  onDemandEntries: {
-    // period (in ms) where the server will keep pages in the buffer
-    maxInactiveAge: 25 * 1000,
-    // number of pages that should be kept simultaneously without being disposed
-    pagesBufferLength: 2,
-  },
-};
-
-// Special Vercel-specific configuration
-if (process.env.BUILDING_FOR_VERCEL === 'true') {
-  console.log('Building for Vercel - applying special configuration');
-  nextConfig.webpack = (config, { isServer }) => {
-    // Exclude functions directory from build
-    config.externals = [...(config.externals || []), 'firebase-functions', 'firebase-admin'];
-    
-    // Ignore functions directory
-    if (config.module && config.module.rules) {
-      config.module.rules.push({
-        test: /functions\//,
-        use: 'null-loader',
-      });
-    }
-    
-    return config;
-  };
 }
 
-module.exports = nextConfig;
+module.exports = nextConfig
