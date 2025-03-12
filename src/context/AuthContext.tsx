@@ -1,10 +1,17 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import type { User } from '@firebase/auth-types';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '@/firebase/config';
 import { getCurrentUserProfile, UserProfile } from '@/firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+
+// Define a simple User interface to match what Firebase returns
+interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
 
 interface AuthContextType {
   user: User | null;
