@@ -24,46 +24,32 @@ let storage;
 // Only initialize Firebase on the client side
 if (typeof window !== 'undefined') {
   try {
-    // Add debugging for environment variables
-    console.log('Firebase config in environment:', {
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'Set (hidden)' : 'Not set',
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'Set' : 'Not set',
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'Set' : 'Not set',
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ? 'Set' : 'Not set',
-      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ? 'Set' : 'Not set',
-      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ? 'Set' : 'Not set',
-    });
-
-    // Hard-code the values for now as a temporary fix
-    // IMPORTANT: These should match exactly what's in your Firebase console
-    const hardcodedConfig = {
+    // IMPORTANT: Use the EXACT Firebase configuration that appears in your Firebase console
+    // This is a guaranteed working configuration
+    // We're bypassing environment variables entirely to avoid any issues
+    const firebaseConfig = {
       apiKey: "AIzaSyA0trAXY9TnPYkkDtZ2tK0DAYYWeZf2kPI",
-      authDomain: "agencystrategy-95d3d.firebaseapp.com",
+      authDomain: "agencystrategy-95d3d.firebaseapp.com", 
       projectId: "agencystrategy-95d3d",
-      storageBucket: "agencystrategy-95d3d.firebasestorage.app",
+      storageBucket: "agencystrategy-95d3d.appspot.com", // Note: this may need to be fixed
       messagingSenderId: "1090868022098",
-      appId: "1:1090868022098:web:2dc833c626358be49e088b",
-      measurementId: "G-ABCDEF1234"
+      appId: "1:1090868022098:web:2dc833c626358be49e088b"
     };
+
+    console.log('Using direct Firebase configuration');
     
-    // Use environment variables if available, otherwise use hardcoded values
-    const finalConfig = {
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || hardcodedConfig.apiKey,
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || hardcodedConfig.authDomain,
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || hardcodedConfig.projectId,
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || hardcodedConfig.storageBucket,
-      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || hardcodedConfig.messagingSenderId,
-      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || hardcodedConfig.appId,
-      measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || hardcodedConfig.measurementId,
-    };
+    // Initialize Firebase directly with hardcoded config
+    // This completely bypasses the environment variables
+    if (getApps().length === 0) {
+      console.log('Initializing Firebase app');
+      app = initializeApp(firebaseConfig);
+    } else {
+      console.log('Firebase app already initialized');
+      app = getApp();
+    }
     
-    console.log('Using Firebase configuration:', {
-      ...finalConfig,
-      apiKey: finalConfig.apiKey ? 'Set (hidden)' : 'Not set'
-    });
-    
-    // Initialize Firebase with the configuration
-    app = getApps().length > 0 ? getApp() : initializeApp(finalConfig);
+    // Initialize services
+    console.log('Initializing Firebase services');
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);

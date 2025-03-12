@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { signIn, signInWithGoogle } from '@/firebase/auth';
+import { auth } from '@/firebase/config';
 
 interface LoginFormData {
   email: string;
@@ -22,11 +23,34 @@ export default function Login() {
     setError(null);
     
     try {
+      console.log('Starting login process...');
+      
+      // Check if Firebase auth is initialized
+      if (!auth) {
+        throw new Error('Firebase authentication is not available. Please check your internet connection and try again.');
+      }
+      
       await signIn(data.email, data.password);
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Failed to sign in');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'Failed to sign in';
+      
+      if (err.code === 'auth/api-key-not-valid') {
+        errorMessage = 'Firebase authentication is not properly configured. Please try again later or contact support.';
+      } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many unsuccessful login attempts. Please try again later.';
+      } else if (err.code === 'auth/user-disabled') {
+        errorMessage = 'This account has been disabled. Please contact support.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -37,11 +61,34 @@ export default function Login() {
     setError(null);
     
     try {
+      console.log('Starting Google sign in process...');
+      
+      // Check if Firebase auth is initialized
+      if (!auth) {
+        throw new Error('Firebase authentication is not available. Please check your internet connection and try again.');
+      }
+      
       await signInWithGoogle();
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Google sign in error:', err);
-      setError(err.message || 'Failed to sign in with Google');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'Failed to sign in with Google';
+      
+      if (err.code === 'auth/api-key-not-valid') {
+        errorMessage = 'Firebase authentication is not properly configured. Please try again later or contact support.';
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'The Google sign-in popup was closed. Please try again.';
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMessage = 'The Google sign-in popup was blocked by your browser. Please enable popups for this site and try again.';
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        errorMessage = 'An account already exists with the same email address but different sign-in credentials. Please sign in using your original method.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
