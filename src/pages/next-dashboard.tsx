@@ -177,7 +177,7 @@ export default function NextDashboard() {
             <div className="px-4 py-5 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-medium text-gray-900">Recent Projects</h2>
-                <Link href="/next-project/new" className="text-sm text-blue-600 hover:text-blue-500">
+                <Link href="/next-project-simple" className="text-sm text-blue-600 hover:text-blue-500">
                   Create Project
                 </Link>
               </div>
