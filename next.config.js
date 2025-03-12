@@ -4,6 +4,7 @@ const nextConfig = {
   swcMinify: true,
   images: {
     domains: ['firebasestorage.googleapis.com'],
+    unoptimized: true, // Needed for static export
   },
   eslint: {
     dirs: ['pages', 'components', 'context', 'hooks', 'services', 'utils'],

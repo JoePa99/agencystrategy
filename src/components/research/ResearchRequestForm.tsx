@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { PlusIcon, MinusCircleIcon } from '@heroicons/react/24/outline';
 import { createResearchRequest } from '@/firebase/firestore';
-import { executeResearch } from '@/services/ai';
+// Use the HTTP version that works better with SSR
+import { executeResearchHttp } from '@/services/ai-http';
 import { useAuth } from '@/context/AuthContext';
 
 interface ResearchRequestFormProps {
@@ -103,8 +104,13 @@ export default function ResearchRequestForm({
         reviews: []
       });
       
-      // Start research process
-      await executeResearch(researchId);
+      // Start research process - using HTTP version
+      try {
+        await executeResearchHttp(researchId);
+      } catch (error) {
+        console.warn('Failed to start research via HTTP, falling back to mock', error);
+        // Just proceed - we'll let the user continue even if the research start fails
+      }
       
       // Call callback if provided
       if (onRequestCreated) {

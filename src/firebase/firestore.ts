@@ -23,6 +23,9 @@ import {
 import { db } from './config';
 import { UserProfile, UserRole } from './auth';
 
+// Check if we're running on the server
+const isServer = typeof window === 'undefined';
+
 // Organization Types
 export interface Organization {
   id: string;
@@ -270,19 +273,30 @@ export const getOrganizationProjects = async (orgId: string): Promise<Project[]>
 };
 
 export const getUserProjects = async (userId: string): Promise<Project[]> => {
-  // Get projects where the user is a member
-  const q = query(
-    collection(db, 'projects'),
-    where(`members.${userId}`, 'in', ['owner', 'editor', 'viewer']),
-    orderBy('updatedAt', 'desc')
-  );
+  // Server-side safety check
+  if (isServer || !db) {
+    console.warn('Firestore not available during SSR, returning empty projects array');
+    return [];
+  }
   
-  const querySnap = await getDocs(q);
-  
-  return querySnap.docs.map(doc => ({
-    id: doc.id,
-    ...convertTimestamps(doc.data() as Omit<Project, 'id'>)
-  }));
+  try {
+    // Get projects where the user is a member
+    const q = query(
+      collection(db, 'projects'),
+      where(`members.${userId}`, 'in', ['owner', 'editor', 'viewer']),
+      orderBy('updatedAt', 'desc')
+    );
+    
+    const querySnap = await getDocs(q);
+    
+    return querySnap.docs.map(doc => ({
+      id: doc.id,
+      ...convertTimestamps(doc.data() as Omit<Project, 'id'>)
+    }));
+  } catch (error) {
+    console.error('Error fetching user projects:', error);
+    return [];
+  }
 };
 
 export const createProject = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
@@ -384,6 +398,11 @@ export const getProjectResearch = async (projectId: string): Promise<ResearchReq
 };
 
 export const createResearchRequest = async (data: Omit<ResearchRequest, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+  // Server-side safety check
+  if (isServer || !db) {
+    throw new Error('Firestore not available during SSR');
+  }
+  
   const docRef = await addDoc(collection(db, 'research'), {
     ...data,
     createdAt: serverTimestamp(),
