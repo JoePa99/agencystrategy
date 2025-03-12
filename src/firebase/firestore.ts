@@ -230,10 +230,14 @@ export const addOrganizationMember = async (
   userId: string, 
   data: Omit<OrganizationMember, 'userId' | 'joinedAt'>
 ): Promise<void> => {
-  await setDoc(doc(db, 'organizations', orgId, 'members', userId), {
+  // Fix undefined photoURL to prevent Firestore errors
+  const memberData = {
     ...data,
+    photoURL: data.photoURL || null,
     joinedAt: serverTimestamp()
-  });
+  };
+  
+  await setDoc(doc(db, 'organizations', orgId, 'members', userId), memberData);
 };
 
 export const updateOrganizationMember = async (

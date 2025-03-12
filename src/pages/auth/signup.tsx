@@ -83,6 +83,7 @@ export default function SignUp() {
         email: user.email,
         displayName: name,
         role: 'admin',
+        photoURL: user.photoURL || null, // Explicitly set to null to avoid Firestore errors
         joinedAt: serverTimestamp()
       });
       
