@@ -63,6 +63,7 @@ export default function NewProject() {
         organizationId: userProfile.organizationId,
         createdBy: userProfile.uid,
         status,
+        logoUrl: null, // Explicitly set to null instead of undefined
         members: {
           [userProfile.uid]: 'owner'
         },

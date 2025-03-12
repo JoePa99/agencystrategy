@@ -64,6 +64,7 @@ export default function SignUp() {
         createdBy: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        logoUrl: null, // Explicitly set to null instead of undefined
         subscription: {
           plan: 'free',
           status: 'active'
