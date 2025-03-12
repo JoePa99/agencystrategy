@@ -35,23 +35,34 @@ export default function NewProjectPage() {
   }, [user, loading, router]);
   
   const onSubmit = async (data: FormValues) => {
-    if (!userProfile) return;
-    
     setIsSubmitting(true);
     setError(null);
     
     try {
+      // Check for userProfile
+      if (!userProfile) {
+        console.error('User profile is null');
+        setError('User profile not loaded. Please refresh the page and try again.');
+        return;
+      }
+      
+      // Check for organizationId
+      if (!userProfile.organizationId) {
+        console.error('Organization ID is missing from user profile', userProfile);
+        setError('Your account is not associated with an organization. Please contact support.');
+        return;
+      }
+      
       // Process tags
       const tagsList = data.tags
         ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : [];
       
-      // Create project
-      const projectId = await createProject({
+      console.log('Creating project with data:', {
         name: data.name,
         description: data.description,
         client: data.client,
-        organizationId: userProfile.organizationId || '',
+        organizationId: userProfile.organizationId,
         createdBy: userProfile.uid,
         status: data.status,
         members: {
@@ -60,11 +71,27 @@ export default function NewProjectPage() {
         tags: tagsList
       });
       
+      // Create project
+      const projectId = await createProject({
+        name: data.name,
+        description: data.description,
+        client: data.client,
+        organizationId: userProfile.organizationId,
+        createdBy: userProfile.uid,
+        status: data.status as 'active' | 'archived' | 'completed',
+        members: {
+          [userProfile.uid]: 'owner'
+        },
+        tags: tagsList
+      });
+      
+      console.log('Project created successfully with ID:', projectId);
+      
       // Redirect to project page
       router.push(`/projects/${projectId}`);
     } catch (err) {
       console.error('Error creating project:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create project');
+      setError(err instanceof Error ? err.message : 'Failed to create project. Please check console for details.');
     } finally {
       setIsSubmitting(false);
     }
