@@ -1,6 +1,7 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import type { User } from '@firebase/auth-types';
 import { auth, db } from '@/firebase/config';
 import { getCurrentUserProfile, UserProfile } from '@/firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -108,9 +109,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log('Setting up auth state listener in AuthContext');
     
     // Listen for auth state changes
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log('Auth state changed:', user ? `User signed in: ${user.email}` : 'User signed out');
-      setUser(user);
+      setUser(user as unknown as User);
       
       try {
         if (user) {

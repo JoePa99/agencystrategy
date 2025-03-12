@@ -12,6 +12,7 @@
     "deploy": "firebase deploy"
   },
   "dependencies": {
+    "@firebase/auth-types": "^0.13.0",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.1.1",
     "@pinecone-database/pinecone": "^1.1.2",

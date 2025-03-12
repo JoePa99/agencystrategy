@@ -1,6 +1,6 @@
 // src/pages/test.tsx
 import { useEffect, useState } from 'react';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { app, db } from '@/firebase/config';
 
@@ -14,7 +14,7 @@ export default function TestPage() {
     const auth = getAuth(app);
     
     // Listen for auth state changes
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthStatus(`Authenticated as ${user.uid}`);
         setUserId(user.uid);
