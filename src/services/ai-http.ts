@@ -8,6 +8,11 @@ const FUNCTIONS_BASE_URL = 'https://us-central1-agencystrategy-95d3d.cloudfuncti
 
 // Helper function to get authentication token
 const getAuthToken = async (): Promise<string> => {
+  // Server-side safety check
+  if (typeof window === 'undefined' || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   const user = auth.currentUser;
   if (!user) {
     throw new Error('User not authenticated');

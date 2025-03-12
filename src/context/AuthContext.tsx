@@ -31,6 +31,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip auth on server side
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+    
+    // Check if auth is available (client-side only)
+    if (!auth) {
+      console.error('Firebase Auth is not initialized');
+      setError('Authentication service is not available');
+      setLoading(false);
+      return;
+    }
+    
     // Listen for auth state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setUser(user);
@@ -52,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
 
     // Cleanup subscription
-    return () => unsubscribe();
+    return () => unsubscribe && unsubscribe();
   }, []);
 
   const value = {

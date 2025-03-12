@@ -1,7 +1,7 @@
 // src/services/ai.ts
 import OpenAI from 'openai';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { functions, db } from '@/firebase/config';
+import { db } from '@/firebase/config';
 
 // Initialize OpenAI client
 const openai = new OpenAI({

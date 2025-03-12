@@ -29,6 +29,9 @@ export interface UserProfile {
   lastLoginAt: Date;
 }
 
+// Check if we're running on the server
+const isServer = typeof window === 'undefined';
+
 // Sign up new user
 export const signUp = async (
   email: string, 
@@ -37,6 +40,11 @@ export const signUp = async (
   role: UserRole = 'strategist',
   organizationId?: string
 ): Promise<UserCredential> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   // Create the user in Firebase Auth
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
@@ -67,6 +75,11 @@ export const signUp = async (
 
 // Sign in existing user
 export const signIn = async (email: string, password: string): Promise<UserCredential> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   
   // Update last login time
@@ -79,6 +92,11 @@ export const signIn = async (email: string, password: string): Promise<UserCrede
 
 // Sign in with Google
 export const signInWithGoogle = async (): Promise<UserCredential> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   const provider = new GoogleAuthProvider();
   const userCredential = await signInWithPopup(auth, provider);
   const user = userCredential.user;
@@ -116,11 +134,21 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 
 // Sign out
 export const signOut = async (): Promise<void> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   return firebaseSignOut(auth);
 };
 
 // Get current user profile
 export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    return null;
+  }
+  
   const user = auth.currentUser;
   if (!user) return null;
   
@@ -132,16 +160,31 @@ export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
 
 // Reset password
 export const resetPassword = async (email: string): Promise<void> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   return sendPasswordResetEmail(auth, email);
 };
 
 // Update user password
 export const updateUserPassword = async (user: User, newPassword: string): Promise<void> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   return updatePassword(user, newPassword);
 };
 
 // Update user email
 export const updateUserEmail = async (user: User, newEmail: string): Promise<void> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   return updateEmail(user, newEmail);
 };
 
@@ -150,6 +193,11 @@ export const updateUserProfile = async (
   uid: string, 
   profileData: Partial<UserProfile>
 ): Promise<void> => {
+  // Server-side safety check
+  if (isServer || !auth) {
+    throw new Error('Authentication not available in this environment');
+  }
+  
   const user = auth.currentUser;
   if (!user || user.uid !== uid) throw new Error('Unauthorized');
   
