@@ -7,6 +7,22 @@ import { parse } from 'node-html-parser';
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
 
+// Import HTTP versions of functions
+import { 
+  generateResearchInsightsHttp, 
+  summarizeDocumentHttp, 
+  startResearchHttp, 
+  processDocumentHttp 
+} from './http-endpoints';
+
+// Export HTTP endpoints for use in frontend without Firebase SDK
+export { 
+  generateResearchInsightsHttp, 
+  summarizeDocumentHttp, 
+  startResearchHttp, 
+  processDocumentHttp 
+};
+
 // Initialize Firebase admin
 admin.initializeApp();
 
