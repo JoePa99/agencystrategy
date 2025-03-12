@@ -2,7 +2,7 @@
 import OpenAI from 'openai';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { functions, db } from '@/firebase/config';
-import { httpsCallable } from 'firebase/functions';
+import { httpsCallable as firebaseHttpsCallable } from 'firebase/functions';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -62,7 +62,7 @@ export const generateEmbeddings = async (text: string): Promise<number[]> => {
 // Create embeddings for document chunks using Cloud Function
 export const createDocumentEmbeddings = async (documentId: string): Promise<void> => {
   // Using Firebase function to process document and create embeddings
-  const processDocument = httpsCallable(functions, 'processDocument');
+  const processDocument = firebaseHttpsCallable(functions, 'processDocument');
   await processDocument({ documentId });
 };
 
@@ -135,7 +135,7 @@ export const generateInsights = async (
   maxInsights: number = 5
 ): Promise<string[]> => {
   // This would call a Firebase Function in production
-  const generateResearchInsights = httpsCallable(functions, 'generateResearchInsights');
+  const generateResearchInsights = firebaseHttpsCallable(functions, 'generateResearchInsights');
   const result = await generateResearchInsights({ researchId, maxInsights });
   
   return (result.data as any).insights as string[];
@@ -147,7 +147,7 @@ export const summarizeDocument = async (
   length: 'short' | 'medium' | 'long' = 'medium'
 ): Promise<string> => {
   // This would call a Firebase Function in production
-  const summarizeDocumentContent = httpsCallable(functions, 'summarizeDocumentContent');
+  const summarizeDocumentContent = firebaseHttpsCallable(functions, 'summarizeDocumentContent');
   const result = await summarizeDocumentContent({ documentId, length });
   
   return (result.data as any).summary as string;
@@ -156,6 +156,6 @@ export const summarizeDocument = async (
 // Execute research request
 export const executeResearch = async (researchId: string): Promise<void> => {
   // This function would call a Firebase Function to start the research process
-  const startResearch = httpsCallable(functions, 'startResearch');
+  const startResearch = firebaseHttpsCallable(functions, 'startResearch');
   await startResearch({ researchId });
 };
