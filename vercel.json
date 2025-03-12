@@ -1,5 +1,5 @@
 {
   "buildCommand": "npm run build:vercel",
-  "outputDirectory": "/tmp/build/.next",
+  "outputDirectory": ".next",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ./functions/"
 }
