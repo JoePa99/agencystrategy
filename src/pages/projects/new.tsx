@@ -15,7 +15,7 @@ interface FormValues {
 }
 
 export default function NewProjectPage() {
-  const { user, userProfile, loading } = useAuth();
+  const { user, userProfile, loading, refreshUserProfile } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +32,11 @@ export default function NewProjectPage() {
     if (!loading && !user) {
       router.push('/login');
     }
+    
+    // Refresh user profile when component mounts to ensure we have the latest data
+    if (user) {
+      refreshUserProfile(); 
+    }
   }, [user, loading, router]);
   
   const onSubmit = async (data: FormValues) => {
@@ -39,6 +44,9 @@ export default function NewProjectPage() {
     setError(null);
     
     try {
+      // Refresh user profile before proceeding
+      await refreshUserProfile();
+      
       // Check for userProfile
       if (!userProfile) {
         console.error('User profile is null');
@@ -46,12 +54,15 @@ export default function NewProjectPage() {
         return;
       }
       
-      // Check for organizationId
+      // Check for organizationId with better logging
       if (!userProfile.organizationId) {
         console.error('Organization ID is missing from user profile', userProfile);
-        setError('Your account is not associated with an organization. Please contact support.');
+        setError('Your account is not associated with an organization. Please visit /debug-profile to fix this issue.');
         return;
       }
+      
+      // Log the organization ID being used
+      console.log('Creating project with organization ID:', userProfile.organizationId);
       
       // Process tags
       const tagsList = data.tags
