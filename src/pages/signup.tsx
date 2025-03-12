@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { signUp, signInWithGoogle, UserRole, updateUserProfile } from '@/firebase/auth';
 import { createOrganization, addOrganizationMember } from '@/firebase/firestore';
+import { auth } from '@/firebase/config';
 
 interface SignupFormData {
   name: string;
@@ -33,6 +34,15 @@ export default function Signup() {
     setError(null);
     
     try {
+      console.log('Starting signup process...');
+      
+      // Check if Firebase auth is initialized
+      if (!auth) {
+        throw new Error('Firebase authentication is not available. Please check your internet connection and try again.');
+      }
+      
+      console.log('Creating user account...');
+      
       // Create user account
       const userCredential = await signUp(
         data.email, 
@@ -74,7 +84,23 @@ export default function Signup() {
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError(err.message || 'Failed to create account');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'Failed to create account';
+      
+      if (err.code === 'auth/api-key-not-valid') {
+        errorMessage = 'Firebase authentication is not properly configured. Please try again later or contact support.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already in use. Please try logging in instead.';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'The email address is not valid.';
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = 'The password is too weak. Please choose a stronger password.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,11 +113,32 @@ export default function Signup() {
     setError(null);
     
     try {
+      console.log('Starting Google sign in process...');
+      
+      // Check if Firebase auth is initialized
+      if (!auth) {
+        throw new Error('Firebase authentication is not available. Please check your internet connection and try again.');
+      }
+      
       await signInWithGoogle();
       router.push('/onboarding');
     } catch (err: any) {
       console.error('Google sign up error:', err);
-      setError(err.message || 'Failed to sign up with Google');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'Failed to sign up with Google';
+      
+      if (err.code === 'auth/api-key-not-valid') {
+        errorMessage = 'Firebase authentication is not properly configured. Please try again later or contact support.';
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'The Google sign-in popup was closed. Please try again.';
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMessage = 'The Google sign-in popup was blocked by your browser. Please enable popups for this site and try again.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
