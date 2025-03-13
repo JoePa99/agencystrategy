@@ -1,7 +1,7 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import * as firebaseAuth from 'firebase/auth';
-import * as firebaseFirestore from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase/config';
 import { getCurrentUserProfile, UserProfile } from '@/firebase/auth';
 
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchUserProfileDirectly = async (uid: string): Promise<UserProfile | null> => {
     try {
       console.log('Fetching user profile directly from Firestore for UID:', uid);
-      const userDocRef = firebaseFirestore.doc(db, 'users', uid);
-      const userDoc = await firebaseFirestore.getDoc(userDocRef);
+      const userDocRef = doc(db, 'users', uid);
+      const userDoc = await getDoc(userDocRef);
       
       if (userDoc.exists()) {
         console.log('User profile found in Firestore:', userDoc.data());
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log('Setting up auth state listener in AuthContext');
     
     // Listen for auth state changes
-    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log('Auth state changed:', user ? `User signed in: ${user.email}` : 'User signed out');
       setUser(user as unknown as User);
       
