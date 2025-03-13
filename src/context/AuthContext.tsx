@@ -1,9 +1,9 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as firebaseAuth from 'firebase/auth';
+import * as firebaseFirestore from 'firebase/firestore';
 import { auth, db } from '@/firebase/config';
 import { getCurrentUserProfile, UserProfile } from '@/firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
 // Define a simple User interface to match what Firebase returns
 interface User {
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchUserProfileDirectly = async (uid: string): Promise<UserProfile | null> => {
     try {
       console.log('Fetching user profile directly from Firestore for UID:', uid);
-      const userDocRef = doc(db, 'users', uid);
-      const userDoc = await getDoc(userDocRef);
+      const userDocRef = firebaseFirestore.doc(db, 'users', uid);
+      const userDoc = await firebaseFirestore.getDoc(userDocRef);
       
       if (userDoc.exists()) {
         console.log('User profile found in Firestore:', userDoc.data());
